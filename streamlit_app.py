@@ -23,6 +23,7 @@ r"""
                                      By: Levi Schaffner
                                     The Hell of a AI Bot
 """
+import base64
 from dotenv import load_dotenv
 import streamlit as st
 import numpy as np
@@ -37,17 +38,15 @@ import time
 import speech_recognition as sr
 #WEBSITE
 #--------------------------------------------------------------------------
-
+path = "response.mp3" # Text-To-Speach mp3 file name
 st.title(":blue[FlubAI]", anchor=None, help=None,)
 
+def configure():
+    load_dotenv()
 
-
-path = "response.mp3" # Text-To-Speach mp3 file name
 language = 'en'
 load_dotenv()
-client = OpenAI( #Open AI key
-    api_key=os.getenv('API_KEY')
-)
+
 print("""
     ________  _____  _____  _____  ______    
 |_   __  ||_   _||_   _||_   _||_   _ \   
@@ -58,9 +57,10 @@ print("""
 
     """)
 st.subheader("The Hell of a AI Bot")
-st.divider()
+
 print("The Hell of a AI Bot")
 st.info("FlubAI is in development expect bugs",  icon=None)
+st.divider()
 print("================================================================")
 st.markdown("Conversation Start")
 print("*Conversation Start*")
@@ -68,20 +68,28 @@ print("*Conversation Start*")
 assistant_response = ("I can help you with anything and everything!")
 
 myobj = gTTS(text=assistant_response, lang=language, slow=False)
-pygame.mixer.init()
-myobj.save("response.mp3")
 
-pygame.mixer.music.load(path)
+myobj.save("response.mp3")
+audio_file = open('response.mp3', 'rb')
+audio_bytes = audio_file.read()
+audio_base64 = base64.b64encode(audio_bytes).decode()
+audio_html = f"""
+<audio autoplay>
+  <source src="data:audio/mp3;base64,{audio_base64}" type="audio/mp3">
+  Your browser does not support the audio element.
+</audio>
+"""
+st.markdown(audio_html, unsafe_allow_html=True)
 st.markdown("Bot: " + assistant_response)
 print("Bot: " + assistant_response)
-pygame.mixer.music.play()
-while pygame.mixer.music.get_busy():
-    time.sleep(0.4)
-pygame.mixer.music.unload()
-os.remove(path)
+
 end_program = False
 while not end_program:
+    configure()
     # Function to continuously monitor microphone input
+    client = OpenAI( #Open AI key
+        api_key=os.getenv('API_KEY')
+    )
     def monitor_microphone():
         # Initialize a variable to store the state (True if there's input, False otherwise)
         is_input = False
