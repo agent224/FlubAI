@@ -88,7 +88,7 @@ while not end_program:
     configure()
     # Function to continuously monitor microphone input
     client = OpenAI( #Open AI key
-        api_key=os.getenv('API_KEY')
+        api_key=st.secrets["API_KEY"]
     )
     def monitor_microphone():
         # Initialize a variable to store the state (True if there's input, False otherwise)
